@@ -1,0 +1,53 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TODO List</title>
+        <link rel="stylesheet" href="/style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    </head>
+    <body>
+        <div class="container">
+            <h1>TODO List</h1>
+            <form class="input-container" action="/" method="POST">
+                <input type="text" id="taskInput" placeholder="Enter your task.." name="task">
+                <button id="addBtn">Add</button>
+            </form>
+            <div class="todo-conntent">
+                <h2>Activities</h2>
+                <% if (todos.length > 0) { %>
+                    <% todos.forEach(todo => { %>
+                        <div class="activity-item">
+                            <p class="activity"><%= todo.task %></p>
+                            <a class='delete' data_doc="<%= todo._id %>">
+                                <i class="fa fa-trash-o" style="font-size:36px"
+                                ></i>
+                            </a>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p>No activities added.</p>
+                <% } %> 
+            </div>
+        <div>
+        <script>
+            const trashcan= document.querySelector('a.delete');
+
+            trashcan.addEventListener('click', (e) => {
+                const endpoint= '/'+trashcan.dataset.doc;
+
+                fetch(endpoint,
+                {
+                    method : 'DELETE'
+                })
+                .then((response)=> response.json())
+                .then((data)=> window.location.href= data.redirect )
+                .catch((err) => {
+                    console.log(err);
+                })
+            })
+        </script>
+
+    </body>
+</html>
+
