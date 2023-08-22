@@ -9,8 +9,9 @@ const bcrypt = require('bcrypt');
 const flash= require('connect-flash');
 
 const app=express();
-const user=require('./models/user');
+const User = require('./models/user');
 const Todo=require('./models/todo');
+
 
 const dburi='mongodb+srv://shivam1313:87654321@todo.gjbhb1k.mongodb.net/?retryWrites=true&w=majority';
 mongoose.connect(dburi,{ useNewUrlParser:true ,useUnifiedTopology:true })
@@ -20,6 +21,45 @@ mongoose.connect(dburi,{ useNewUrlParser:true ,useUnifiedTopology:true })
     .catch((err)=>{
         console.log(err);
     })
+
+
+app.use(session({
+    secret:'12abcshivam',
+    resave:true,
+    saveUninitialized:true,
+}))
+
+passport.use(new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
+    User.findOne({ email: email })
+        .then(user => {
+            if (!user) {
+                return done(null, false, { message: 'Incorrect email.' });
+            }
+            bcrypt.compare(password, user.password, (err, result) => {
+                if (err) return done(err);
+                if (result) {
+                    return done(null, user);
+                } else {
+                    return done(null, false, { message: 'Incorrect password.' });
+                }
+            });
+        })
+        .catch(err => done(err));
+}));
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+    User.findById(id, (err, user) => {
+        done(err, user);
+    });
+});
+
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
 
 
 app.set('view engine','ejs');
@@ -37,9 +77,66 @@ app.get('/',(req,res)=>{
     })
 })
 
+app.get('/register',(req,res)=>{
+    res.render('register')
+})
+
+app.post('/register',(req,res)=>{
+    const {email , password}=req.body
+
+    bcrypt.hash(password,10)
+    .then(hash=>{
+        const user = new User({
+            email:email,
+            password:hash,
+        })
+        return user.save();
+    })
+    .then(user=>{
+        res.redirect('/login')
+    })
+    .catch(err=>{
+        console.log(err);
+        res.redirect('/register')
+    })
+})
+
+
+app.get('/login',(req,res)=>{
+    res.render('login');
+})
+
+app.post('/login',passport.authenticate('local',{
+    successRedirect:'/',
+    failureRedirect:'/login',
+    failureFlash:true
+}))
+
+app.get('/logout',(Req,res)=>{
+    req.logout();
+    res.redirect('/login');
+})
+
+function ensureAuthenticated(req,res,next)
+{
+    if(req.isAuthenticated())
+    {
+        return next();
+    }
+    res.redirect('/login');
+}
+
+app.get('/protected',ensureAuthenticated,(req,res)=>{
+    res.render('protected');
+})
+
 app.post('/',(req,res)=>{
+    const {task} = req.body;
     console.log(req.body);
-    const todo= new Todo(req.body)
+    const todo= new Todo({
+        task:task,
+        user:req.user.id,
+    })
     
     todo.save()
     .then((result)=>{
