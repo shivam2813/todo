@@ -7,7 +7,7 @@ const app=express();
 const Todo=require('./models/todo')
 const User=require('./models/user')
 
-const dburi='mongodb+srv://shivam:shivam123@todo.gjbhb1k.mongodb.net/?retryWrites=true&w=majority';
+const dburi=process.env.DB_URI;
 mongoose.connect(dburi,{ useNewUrlParser:true ,useUnifiedTopology:true })
     .then((result)=>{
         app.listen(3002);
