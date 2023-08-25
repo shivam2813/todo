@@ -9,7 +9,9 @@
     <body>
         <div class="container">
             <h1>TODO List</h1>
-            <form class="input-container" action="/" method="POST">
+            
+            <form class="input-container" action="/index" method="POST">
+                <input type="hidden" name="userId" value="<%= user %>" id="userId">
                 <input type="text" id="taskInput" placeholder="Enter your task.." name="task">
                 <button id="addBtn">Add</button>
             </form>
@@ -28,24 +30,39 @@
                 <% } else { %>
                     <p>No activities added.</p>
                 <% } %> 
+                <div class="navbar">
+                    <!-- Add the logout button in the navbar -->
+                    <form action="/logout" method="GET">
+                        <button type="submit" id="logoutBtn">Logout</button>
+                    </form>
+                </div>
             </div>
         <div>
         <script>
-            const trashcan= document.querySelector('a.delete');
+            // Select all delete buttons using querySelectorAll
+            const deleteButtons = document.querySelectorAll('a.delete');
 
-            trashcan.addEventListener('click', (e) => {
-                const endpoint= '/'+trashcan.dataset.doc;
+            // Loop through each delete button and attach an event listener
+            deleteButtons.forEach(trashcan => {
+                trashcan.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const userId = document.getElementById('userId').value;
+                    console.log(userId);
+                    const endpoint = '/index/' + trashcan.getAttribute('data_doc') + '?userId=' + userId;
 
-                fetch(endpoint,
-                {
-                    method : 'DELETE'
-                })
-                .then((response)=> response.json())
-                .then((data)=> window.location.href= data.redirect )
-                .catch((err) => {
-                    console.log(err);
-                })
-            })
+                    fetch(endpoint, {
+                        method: 'DELETE'
+                    })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        window.location.href = data.redirect;
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+                });
+            });
+
         </script>
 
     </body>

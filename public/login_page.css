@@ -3,6 +3,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f0f0f0;
+    
 }
 
 .container {
@@ -19,7 +20,7 @@ h1 {
     color: #333333;
 }
 
-label {
+.label-class {
     display: block;
     margin-bottom: 10px;
     color: #333333;
@@ -29,6 +30,7 @@ label {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    width:90%;
 }
 
 input[type="email"],
@@ -38,16 +40,26 @@ input[type="password"] {
     border-radius: 3px;
 }
 
-button {
+.button-class {
     background-color: #007bff;
     color: #ffffff;
     border: none;
     padding: 10px 15px;
     border-radius: 3px;
     cursor: pointer;
-    margin-top: 10px;
+    margin: 5% 5% ;
+    width: 90%;
+    font-weight: bold;
 }
 
-button:hover {
+.submit-button:hover {
+    font-weight: bolder;
     background-color: #0056b3;
+}
+
+.register-button {
+    text-decoration: none;
+}
+.register-button:hover {
+    text-decoration: underline;
 }
